@@ -7,34 +7,141 @@
 <style>
 body {
 font-family: sans-serif;
-text-align: center;
-padding: 50px;
 background-color: #f4f4f9;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
 }
 .contenedor {
 background: white;
 padding: 30px;
 border-radius: 10px;
 box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-max-width: 600px;
-margin: 0 auto;
+width: 90%;
+max-width: 500px;
+text-align: center;
 }
-button {
-padding: 10px 20px;
-font-size: 16px;
-cursor: pointer;
-background-color: #007bff;
-color: white;
+.oculto { display: none; }
+.opcion {
+display: block;
+width: 100%;
+padding: 12px;
+margin: 10px 0;
+background-color: #e9ecef;
 border: none;
 border-radius: 5px;
+cursor: pointer;
+font-size: 16px;
+transition: background-color 0.2s;
 }
+.opcion:hover { background-color: #ced4da; }
+button.iniciar {
+background-color: #007bff;
+color: white;
+padding: 12px 24px;
+border: none;
+border-radius: 5px;
+font-size: 18px;
+cursor: pointer;
+margin-top: 20px;
+}
+button.iniciar:hover { background-color: #0056b3; }
 </style>
 </head>
 <body>
-<div class="contenedor">
-<h1>Mi Generador de Tests</h1>
-<p>¡La base de la web ya está lista!</p>
-<button onclick="alert('¡El JavaScript también funciona!')">Probar botón</button>
+
+<div id="pantalla-inicio" class="contenedor">
+<h1>Modo Examen</h1>
+<p>Bloques temáticos listos. Pulsa para comenzar tu simulación.</p>
+<button class="iniciar" onclick="empezarTest()">Empezar Test</button>
 </div>
+
+<div id="pantalla-test" class="contenedor oculto">
+<h2 id="pregunta-texto">Cargando pregunta...</h2>
+<div id="opciones-contenedor"></div>
+<p style="color: #666; margin-top: 20px;">Pregunta <span id="contador">1</span> de <span id="total"></span></p>
+</div>
+
+<div id="pantalla-resultados" class="contenedor oculto">
+<h2>Resultados Finales</h2>
+<p>Has acertado <strong id="puntuacion">0</strong> de <strong id="total-resultados">0</strong></p>
+<button class="iniciar" onclick="reiniciarTest()">Volver a intentar</button>
+</div>
+
+<script>
+// Aquí es donde meterás todas tus preguntas
+const bancoDePreguntas = [
+{
+pregunta: "En el mix de marketing (las 4 P), ¿cuál de las siguientes opciones NO pertenece a este grupo original?",
+opciones: ["Producto", "Precio", "Personal", "Distribución (Plaza)"],
+respuestaCorrecta: 2 // Ojo: en programación se empieza a contar desde el 0. "Personal" es la opción 2.
+},
+{
+pregunta: "Dentro del área de Recursos Humanos, ¿cuál es el objetivo principal de la 'evaluación del desempeño'?",
+opciones: ["Determinar el salario base", "Medir el rendimiento y potencial del trabajador", "Redactar el contrato laboral", "Aumentar las ventas de la empresa"],
+respuestaCorrecta: 1 // La correcta es "Medir el rendimiento..."
+}
+];
+
+let preguntaActual = 0;
+let puntos = 0;
+
+function empezarTest() {
+document.getElementById('pantalla-inicio').classList.add('oculto');
+document.getElementById('pantalla-resultados').classList.add('oculto');
+document.getElementById('pantalla-test').classList.remove('oculto');
+preguntaActual = 0;
+puntos = 0;
+document.getElementById('total').innerText = bancoDePreguntas.length;
+mostrarPregunta();
+}
+
+function mostrarPregunta() {
+const preguntaObj = bancoDePreguntas[preguntaActual];
+document.getElementById('pregunta-texto').innerText = preguntaObj.pregunta;
+document.getElementById('contador').innerText = preguntaActual + 1;
+
+const contenedorOpciones = document.getElementById('opciones-contenedor');
+contenedorOpciones.innerHTML = '';
+
+preguntaObj.opciones.forEach((opcion, index) => {
+const boton = document.createElement('button');
+boton.innerText = opcion;
+boton.className = 'opcion';
+// Al hacer clic, enviamos qué respuesta ha elegido el usuario
+boton.onclick = () => comprobarRespuesta(index);
+contenedorOpciones.appendChild(boton);
+});
+}
+
+function comprobarRespuesta(indiceSeleccionado) {
+// Comprobamos si acertó sumando un punto
+if (indiceSeleccionado === bancoDePreguntas[preguntaActual].respuestaCorrecta) {
+puntos++;
+}
+
+preguntaActual++; // Pasamos a la siguiente pregunta
+
+// Si quedan preguntas, mostramos la siguiente. Si no, fin del test.
+if (preguntaActual < bancoDePreguntas.length) {
+mostrarPregunta();
+} else {
+mostrarResultados();
+}
+}
+
+function mostrarResultados() {
+document.getElementById('pantalla-test').classList.add('oculto');
+document.getElementById('pantalla-resultados').classList.remove('oculto');
+document.getElementById('puntuacion').innerText = puntos;
+document.getElementById('total-resultados').innerText = bancoDePreguntas.length;
+}
+
+function reiniciarTest() {
+empezarTest();
+}
+</script>
 </body>
 </html>
